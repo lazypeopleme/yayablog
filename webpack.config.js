@@ -1,7 +1,7 @@
-var path = require("path");
-var webpack = require("webpack");
-var Hwp=require('html-webpack-plugin');
-var Ext = require("extract-text-webpack-plugin");
+const path = require("path");
+const webpack = require("webpack");
+const Hwp = require("html-webpack-plugin");
+const Ext = require("extract-text-webpack-plugin");
 const VueLoaderPlugin = require("vue-loader/lib/plugin");
 
 module.exports = {
@@ -35,15 +35,28 @@ module.exports = {
         }
       },
       {
-        test: /\.(png|jpg|gif|svg)$/,
-        loader: "file-loader",
-        options: {
-          name: "[name].[ext]?[hash]"
-        }
+        test: /\.(png|jpe?g|gif)$/,
+        use: [
+          {
+            loader: "file-loader",
+            options: {
+              outputPath: "assets/images",
+              name: "[name].[ext]?[hash]"
+            }
+          }
+        ]
       },
       {
-        test: /.(eot|svg|ttf|woff|woff2)$/,
-        loader: 'file-loader'
+        test: /\.(eot|svg|ttf|woff|woff2)$/,
+        use: [
+          {
+            loader: "file-loader",
+            options: {
+              outputPath: "assets/fonts",
+              name: "[name].[ext]?[hash]"
+            }
+          }
+        ]
       },
       {
         test: /\.css$/,
@@ -61,13 +74,14 @@ module.exports = {
     }
   },
   devServer: {
-    // contentBase: __dirname + "/dist/", //在该目录下的文件会被编译，没有设置则所有的文件都编译
+    contentBase: __dirname + "/dist/", //在该目录下的文件会被编译，没有设置则所有的文件都编译
     filename: "build.js", //设置某个文件被请求时才编译
     port: 5000, //服务器端口
     inline: true, //内联模式，用于提示引入的脚本
     open: true, //启动服务器就打开浏览器
     historyApiFallback: true,
-    noInfo: true
+    noInfo: true,
+    publicPath: "/dist/"
   },
   performance: {
     hints: false
@@ -80,7 +94,7 @@ module.exports = {
       template: "./index.html",
       filename: "index.html",
       inject: "body" //true
-    })
+    }), // 参数为目录,清除文件
   ]
 };
 
