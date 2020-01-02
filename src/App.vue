@@ -26,6 +26,10 @@ export default class App extends Vue {
   mounted() {
     // 获取菜单列表
     this.$store.dispatch("GET_BLOGMENU");
+    // 刷新页面后回到首页
+    if (this.$route.path !== "/home") {
+      this.$router.push("/home");
+    }
   }
 }
 </script>
@@ -45,6 +49,11 @@ a {
 a:hover {
   color: #fff;
 }
+ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
 .blog-sider {
   position: fixed;
   top: 0;
@@ -59,5 +68,16 @@ a:hover {
   right: 0;
   width: 73%;
   margin-left: 2%;
+}
+h2 {
+  color: #bbb;
+}
+header {
+  position: relative;
+}
+.submit-btn {
+  position: absolute;
+  right: 0;
+  top: 0;
 }
 </style>

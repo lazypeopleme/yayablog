@@ -3,14 +3,23 @@
   <el-main>
     <section>
       <el-row>
-        <el-col :span="24">
+        <el-col
+          :span="24"
+          v-for="item in articlesList"
+          :key="item.art_id"
+          :style="{marginBottom:'20px'}"
+        >
           <el-card :body-style="{ padding: '0px' }">
             <img src />
             <div style="padding: 14px;">
-              <span>好吃的汉堡</span>
+              <span>{{item.art_title}}</span>
               <div class="bottom clearfix">
                 <!-- <time class="time">{{ currentDate }}</time> -->
-                <el-button type="text" class="look-more-btn">操作按钮</el-button>
+                <el-button
+                  type="text"
+                  class="look-more-btn"
+                  @click="()=>redirectToDetails(item)"
+                >查看全文</el-button>
               </div>
             </div>
           </el-card>
@@ -28,8 +37,8 @@ import { Route } from "vue-router";
 
 @Component
 export default class Module extends Vue {
-  @State articlesList!: [] ; // 文章列表
-  @State menuList!: [] ; // 系统菜单
+  @State articlesList!: []; // 文章列表
+  @State menuList!: []; // 系统菜单
 
   mounted() {
     const { type } = this.$route.params;
@@ -58,6 +67,12 @@ export default class Module extends Vue {
   routeChange(newVal: Route) {
     const { type } = newVal.params;
     this.init(type);
+  }
+
+  redirectToDetails(item: { art_id: number }) {
+    const { type } = this.$route.params;
+    this.$store.commit('articleDetails',item);
+    this.$router.push(`/blog-detail/${type}/${item.art_id}`);
   }
 
   addArticle() {
