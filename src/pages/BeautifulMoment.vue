@@ -7,7 +7,7 @@
     </header>
     <el-form :model="formData" :rules="rules" ref="momentForm">
       <el-form-item prop="title" label="文章标题">
-        <el-input clearable show-word-limit v-model="formData.title" :style="{width:'30%'}"></el-input>
+        <el-input clearable show-word-limit v-model="formData.title" :style="{ width: '30%' }"></el-input>
       </el-form-item>
       <el-form-item>
         <el-col :span="8">
@@ -24,8 +24,9 @@
               :auto-upload="false"
               :file-list="imgList"
               :show-file-list="false"
+              :on-error="error"
+              :on-success="success"
               :before-upload="beforeUpload"
-              :on-error="handleUploadError"
               :on-change="handlUploadChange"
             >
               <i class="el-icon-upload"></i>
@@ -57,7 +58,7 @@
       <mark>4张</mark>照片，且照片格式只能是jpg/jpeg/png/gif。
     </div>
     <ul class="img-list">
-      <li v-for="{name,url} in imgList" :key="url">
+      <li v-for="{ name, url } in imgList" :key="url">
         <img :src="url" />
         <i class="el-icon-close" @click="remove(name)"></i>
       </li>
@@ -120,12 +121,7 @@ export default class BeautifulMoment extends Vue {
     fd.append("artId", this.artId);
     fd.append("file", file);
     // 手动上传
-    this.$store.dispatch("UPLOAD_IMG", fd).then(res => {
-      const { status, message } = res.data;
-      if (status === 1) {
-        this.$router.push(`/blog-detail/beautiful-moment/${this.artId}`);
-      } else notification("warning", message);
-    });
+    this.$store.dispatch("UPLOAD_IMG", fd);
     return false; // 禁止自动上传
   }
 
@@ -145,7 +141,6 @@ export default class BeautifulMoment extends Vue {
    * 发布文章
    */
   submitForm() {
-    const that = this;
     const form: any = this.$refs["momentForm"];
     const upload: any = this.$refs["upload"];
     const { menuId, formData } = this;
@@ -156,7 +151,7 @@ export default class BeautifulMoment extends Vue {
         data.append("title", title);
         data.append("menuId", menuId);
         data.append("text", description);
-        that.$store.dispatch("ADD_ARTICLE", data).then((res: any) => {
+        this.$store.dispatch("ADD_ARTICLE", data).then((res: any) => {
           if (res && res.data.status === 1) {
             this.artId = res.data.artId;
             upload.submit();
@@ -175,9 +170,28 @@ export default class BeautifulMoment extends Vue {
   }
 
   /**
+   * 上传成功后的操作
+   */
+  success() {
+    const { artId, menuId, formData, imgList } = this;
+    const { title, description } = formData;
+    const details = { art_id: artId, art_title: title, art_text: description };
+    this.$store.dispatch("SELECT_IMG", { artId }).then((res: any) => {
+      this.$store.commit("ARTICLE_DETAILS", {
+        details,
+        list: res.data.length ? res.data : []
+      });
+      this.$router.push(`/blog-detail/beautiful-moment/${this.artId}`);
+    });
+  }
+
+  /**
    * 上传失败后的操作
    */
-  handleUploadError() {}
+  error() {
+    this.imgList = [];
+    notification("warning", "上传失败");
+  }
 }
 </script>
 

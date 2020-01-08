@@ -9,7 +9,7 @@
       <el-form-item prop="title" label="文章标题">
         <el-input clearable show-word-limit v-model="formData.title" :style="{ width: '30%' }"></el-input>
       </el-form-item>
-      <el-form-item prop="text">
+      <el-form-item>
         <editor-bar v-model="text" :isClear="isClear" @change="change" />
       </el-form-item>
     </el-form>
@@ -32,7 +32,7 @@ export default class InformalEssay extends Vue {
   private text: string; // 文本
   private isClear: boolean; // 是否清除文本
   private isTextChange: boolean; // 文本编辑器是否填写了新内容
-  private formData: { title: string }; // 表单对象{description:照片描述}
+  private formData: { title: string }; // 表单对象
   private rules: { title: {} }; // 表单校验规则
 
   constructor() {
@@ -60,7 +60,6 @@ export default class InformalEssay extends Vue {
    * 发布文章
    */
   realse() {
-    const that = this;
     const { menuId, text, formData, isTextChange } = this;
     const form: any = this.$refs["essayForm"];
     form.validate((valid: boolean): boolean => {

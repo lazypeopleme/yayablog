@@ -20,9 +20,10 @@ const mutations: MutationTree<RootStateTypes> = {
     }
   },
   // 当前查看的文章的详情
-  ARTICLE_DETAILS(state: RootStateTypes, payload: object) {
-    state["currentArticleDetails"] = payload;
-  },
+  ARTICLE_DETAILS(state: RootStateTypes, payload: { details: {}; list: [] }) {
+    state["currentArticleDetails"] = payload.details;
+    state["currentArticleImgList"] = payload.list;
+  }
 };
 
 export default mutations;

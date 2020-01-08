@@ -94,7 +94,7 @@ module.exports = {
       template: "./index.html",
       filename: "index.html",
       inject: "body" //true
-    }), // 参数为目录,清除文件
+    }) // 参数为目录,清除文件
   ]
 };
 

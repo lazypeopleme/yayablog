@@ -2,24 +2,29 @@
 <template>
   <el-main>
     <section>
-      <el-row>
+      <el-row :gutter="24">
         <el-col
-          :span="24"
+          :span="12"
           v-for="item in articlesList"
           :key="item.art_id"
           :style="{marginBottom:'20px'}"
         >
           <el-card :body-style="{ padding: '0px' }">
-            <img src />
+            <img
+              v-if="menuId==='4'"
+              class="img-icon"
+              :src="`../../src/assets/images/essay/essay_bg_${Math.ceil(Math.random(1,29)*10)}.jpg`"
+            />
+            <img
+              v-if="item.p_url"
+              class="img-icon"
+              :src="`http://localhost/www/yayablog/${item.p_url}`"
+            />
             <div style="padding: 14px;">
               <span>{{item.art_title}}</span>
               <div class="bottom clearfix">
                 <!-- <time class="time">{{ currentDate }}</time> -->
-                <el-button
-                  type="text"
-                  class="look-more-btn"
-                  @click="()=>redirectToDetails(item)"
-                >查看全文</el-button>
+                <el-button type="text" class="look-more-btn" @click="()=>beforeRedirect(item)">查看全文</el-button>
               </div>
             </div>
           </el-card>
@@ -39,6 +44,7 @@ import { Route } from "vue-router";
 export default class Module extends Vue {
   @State articlesList!: []; // 文章列表
   @State menuList!: []; // 系统菜单
+  @State menuId!: string; // 系统菜单
 
   mounted() {
     const { type } = this.$route.params;
@@ -69,10 +75,22 @@ export default class Module extends Vue {
     this.init(type);
   }
 
-  redirectToDetails(item: { art_id: number }) {
+  beforeRedirect(details: { art_id: number }) {
     const { type } = this.$route.params;
-    this.$store.commit('articleDetails',item);
-    this.$router.push(`/blog-detail/${type}/${item.art_id}`);
+    if (type === "beautiful-moment") {
+      this.$store
+        .dispatch("SELECT_IMG", { artId: details.art_id })
+        .then((res: any) => {
+          const list = res.data.length ? res.data : [];
+          this.redirectToDetails(details, list);
+        });
+    } else this.redirectToDetails(details, []);
+  }
+
+  redirectToDetails(details: { art_id: number }, list: []) {
+    const { type } = this.$route.params;
+    this.$store.commit("ARTICLE_DETAILS", { details, list });
+    this.$router.push(`/blog-detail/${type}/${details.art_id}`);
   }
 
   addArticle() {
@@ -83,7 +101,7 @@ export default class Module extends Vue {
 }
 </script>
 
-<style>
+<style scoped>
 .look-more-btn {
   padding: 0;
   float: right;
@@ -92,5 +110,9 @@ export default class Module extends Vue {
   position: fixed;
   bottom: 10%;
   right: 2%;
+}
+.img-icon {
+  width: 80%;
+  padding: 10px 10% 0;
 }
 </style>
