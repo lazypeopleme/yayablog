@@ -1,7 +1,6 @@
 <!-- 博客的首页 -->
 <template>
   <el-main>
-    <img :src="require('../../src/assets/images/essay_bg_1.jpg')" />
   </el-main>
 </template>
 

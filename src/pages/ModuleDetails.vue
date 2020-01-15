@@ -2,7 +2,7 @@
 <template>
   <el-main>
     <h3>{{title}}</h3>
-    <p v-if="menuId==='4'">{{text}}</p>
+    <p v-if="menuId==='4'" v-html="text"></p>
     <div v-else-if="menuId==='5'">
       <p>{{text}}</p>
       <img
@@ -15,13 +15,7 @@
     </div>
     <div v-else>
       <mark-down @on-save="save" ref="md" />
-      <el-button
-        circle
-        type="info"
-        class="submit-btn"
-        icon="el-icon-check"
-        @click="$ref.md.handleSave"
-      ></el-button>
+      <el-button circle type="info" class="submit-btn" icon="el-icon-check"></el-button>
     </div>
   </el-main>
 </template>
@@ -45,9 +39,9 @@ export default class ModuleDetails extends Vue {
   };
   @State currentArticleImgList!: [];
 
-  private id: number; //
-  private title: string; //
-  private text: string; //
+  private id: number;
+  private title: string;
+  private text: string;
 
   constructor() {
     super();
@@ -74,6 +68,14 @@ export default class ModuleDetails extends Vue {
     //       notification();
     //     } else notification("warning", message);
     //   });
+  }
+
+  /**
+   * 保存编辑后的markDown内容
+   */
+  handleSave() {
+    const md: any = this.$refs["md"];
+    md.handleSave();
   }
 }
 </script>

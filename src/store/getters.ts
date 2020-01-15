@@ -2,7 +2,7 @@ import { GetterTree } from "vuex";
 import { RootStateTypes } from "./types";
 
 const getters: GetterTree<RootStateTypes, any> = {
-    // menuList: (state: RootStateTypes) => state.menuList,
+//   pagination: (state: RootStateTypes) => state.pagination
 };
 
 export default getters;

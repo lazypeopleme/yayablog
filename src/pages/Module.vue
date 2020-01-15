@@ -4,57 +4,89 @@
     <section>
       <el-row :gutter="24">
         <el-col
-          :span="12"
+          :span="menuId==='4'||menuId==='5'?12:24"
           v-for="item in articlesList"
           :key="item.art_id"
           :style="{marginBottom:'20px'}"
+          @click.native="()=>beforeRedirect(item)"
         >
-          <el-card :body-style="{ padding: '0px' }">
+          <el-card v-if="menuId==='4'" :body-style="bodyStyle">
             <img
-              v-if="menuId==='4'"
-              class="img-icon"
-              :src="`../../src/assets/images/essay/essay_bg_${Math.ceil(Math.random(1,29)*10)}.jpg`"
+              class="img-essay"
+              :src="require(`../../src/assets/images/essay/essay_bg_${Math.ceil(Math.random(1,29)*10)}.jpg`)"
             />
+            <div class="essay-text">
+              <h4 class="text-title">{{item.art_title}}</h4>
+              <p>{{removeHTMLTag(item.art_text)}}</p>
+              <p class="time">
+                <i>{{item.art_publish_date.slice(0,10)}}</i>
+              </p>
+            </div>
+          </el-card>
+          <el-card v-else-if="menuId==='5'" :body-style="bodyStyle">
             <img
               v-if="item.p_url"
               class="img-icon"
               :src="`http://localhost/www/yayablog/${item.p_url}`"
             />
-            <div style="padding: 14px;">
-              <span>{{item.art_title}}</span>
-              <div class="bottom clearfix">
-                <!-- <time class="time">{{ currentDate }}</time> -->
-                <el-button type="text" class="look-more-btn" @click="()=>beforeRedirect(item)">查看全文</el-button>
-              </div>
+            <div class="moment-text">
+              <h4 class="text-title">{{item.art_title}}</h4>
+              <p class="time">
+                <i>{{item.art_publish_date.slice(0,10)}}</i>
+              </p>
+            </div>
+          </el-card>
+          <el-card v-else :body-style="bodyStyle">
+            <div style="padding: 15px;" class="text">
+              <h4 class="text-title">{{item.art_title}}</h4>
+              <p class="time">
+                <i>{{item.art_publish_date.slice(0,10)}}</i>
+              </p>
+              <p>{{removeHTMLTag(item.art_text)}}</p>
             </div>
           </el-card>
         </el-col>
       </el-row>
-      <el-button class="add-article" type="primary" icon="el-icon-plus" circle @click="addArticle"></el-button>
+      <Pagination :pagination="pagination" :change="init" />
+      <el-button class="add-article" type="primary" icon="el-icon-edit" circle @click="addArticle"></el-button>
     </section>
   </el-main>
 </template>
 
 <script lang="ts">
+declare function require(img: string): string;
+
 import { Vue, Component, Prop, Watch } from "vue-property-decorator";
 import { State, Mutation } from "vuex-class";
 import { Route } from "vue-router";
 
-@Component
+import Pagination from "../components/Pagination.vue";
+
+@Component({
+  components: { Pagination }
+})
 export default class Module extends Vue {
   @State articlesList!: []; // 文章列表
   @State menuList!: []; // 系统菜单
   @State menuId!: string; // 系统菜单
+  @State pagination!: {}; // 分页信息
+
+  private bodyStyle: {};
+
+  constructor() {
+    super();
+    this.bodyStyle = { padding: "5px", position: "relative" };
+  }
 
   mounted() {
-    const { type } = this.$route.params;
-    this.init(type);
+    this.init();
   }
 
   /**
    * 初始化数据
    */
-  init(type: string) {
+  init(page?: {}) {
+    const { type } = this.$route.params;
     const filterList = (this.menuList || []).filter(
       item => item["menu_name"] === type
     );
@@ -62,7 +94,8 @@ export default class Module extends Vue {
       // 获取当前菜单下文章列表
       const menuId = filterList[0]["menu_id"];
       this.$store.dispatch("GET_ARTICLES_LIST", {
-        menuId
+        menuId,
+        ...page
       });
     }
     // 修改当前模块的activeKey
@@ -71,10 +104,23 @@ export default class Module extends Vue {
 
   @Watch("$route", { immediate: true })
   routeChange(newVal: Route) {
-    const { type } = newVal.params;
-    this.init(type);
+    this.init();
   }
 
+  /**
+   * 过滤文章内容
+   */
+  removeHTMLTag(str: string) {
+    str = str.replace(/<\/?[^>]*>/g, ""); //去除HTML tag
+    str = str.replace(/[ | ]*\n/g, "\n"); //去除行尾空白
+    str = str.replace(/\n[\s| | ]*\r/g, "\n"); //去除多余空行
+    str = str.replace(/&nbsp;/gi, ""); //去掉&nbsp;
+    return str;
+  }
+
+  /**
+   * 跳转页面前的判断
+   */
   beforeRedirect(details: { art_id: number }) {
     const { type } = this.$route.params;
     if (type === "beautiful-moment") {
@@ -87,15 +133,20 @@ export default class Module extends Vue {
     } else this.redirectToDetails(details, []);
   }
 
+  /**
+   * 跳转页面
+   */
   redirectToDetails(details: { art_id: number }, list: []) {
     const { type } = this.$route.params;
     this.$store.commit("ARTICLE_DETAILS", { details, list });
     this.$router.push(`/blog-detail/${type}/${details.art_id}`);
   }
 
+  /**
+   * 跳转到发布文章
+   */
   addArticle() {
     const { type } = this.$route.params;
-    // 跳转到发布文章
     this.$router.push(`/${type}`);
   }
 }
@@ -114,5 +165,31 @@ export default class Module extends Vue {
 .img-icon {
   width: 80%;
   padding: 10px 10% 0;
+}
+.img-essay {
+  width: 90%;
+  padding: 20px 5% 0;
+}
+.moment-text,
+.text {
+  padding: 15px;
+}
+.essay-text {
+  padding: 10% 15%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9;
+}
+.text-title {
+  margin: 0 0 8px;
+}
+.time {
+  font-size: 14px;
+  color: #666;
+  text-align: right;
+  margin: 0;
 }
 </style>

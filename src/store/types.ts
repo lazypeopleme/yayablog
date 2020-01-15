@@ -5,4 +5,5 @@ export interface RootStateTypes {
   menuId: string;
   currentArticleDetails: {};
   currentArticleImgList: [];
+  pagination:{};
 }

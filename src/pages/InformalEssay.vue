@@ -49,8 +49,6 @@ export default class InformalEssay extends Vue {
     };
   }
 
-  created() {}
-
   mounted() {
     // 修改当前模块的activeKey
     this.$store.commit("GET_CURRENT_ACTIVE_KEY", "informal-essay");
