@@ -10,7 +10,7 @@
         <el-input clearable show-word-limit v-model="formData.title" :style="{width:'30%'}"></el-input>
       </el-form-item>
       <el-form-item>
-        <mark-down @on-save="save" ref="md" />
+        <mark-down @on-save="save" ref="md"/>
       </el-form-item>
     </el-form>
   </el-main>

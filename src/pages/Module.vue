@@ -17,7 +17,8 @@
             />
             <div class="essay-text">
               <h4 class="text-title">{{item.art_title}}</h4>
-              <p>{{removeHTMLTag(item.art_text)}}</p>
+              <p v-html="textRows(item.art_text)"></p>
+              <span v-if="showEllipsis(item.art_text)">......</span>
               <p class="time">
                 <i>{{item.art_publish_date.slice(0,10)}}</i>
               </p>
@@ -42,7 +43,7 @@
               <p class="time">
                 <i>{{item.art_publish_date.slice(0,10)}}</i>
               </p>
-              <p>{{removeHTMLTag(item.art_text)}}</p>
+              <p class="ellipsis">{{removeHTMLTag(item.art_text)}}</p>
             </div>
           </el-card>
         </el-col>
@@ -102,9 +103,31 @@ export default class Module extends Vue {
     this.$store.commit("GET_CURRENT_ACTIVE_KEY", type);
   }
 
+  /**
+   * 监听路由
+   */
   @Watch("$route", { immediate: true })
   routeChange(newVal: Route) {
     this.init();
+  }
+
+  /**
+   * 判断内容是否超过三行，超过则需处理文本
+   */
+  textRows(text: string = "") {
+    // 判断行里的<p></p>是否大于三个
+    const rows = text.split("<p>");
+    const rowsText = `<p>${rows[1]}<p>${rows[2]}`;
+    if (rows.length > 4 && rowsText.length <= 57) {
+      return rowsText;
+    } else return text.slice(0, 57);
+  }
+
+  /**
+   * 判断内容是否超过三行，超过则显示省略号
+   */
+  showEllipsis(text: string = "") {
+    return text.split("<p>").length > 4 || text.length > 56;
   }
 
   /**
@@ -175,7 +198,7 @@ export default class Module extends Vue {
   padding: 15px;
 }
 .essay-text {
-  padding: 10% 15%;
+  padding: 15% 20%;
   position: absolute;
   top: 0;
   left: 0;
@@ -191,5 +214,11 @@ export default class Module extends Vue {
   color: #666;
   text-align: right;
   margin: 0;
+}
+.ellipsis {
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 </style>

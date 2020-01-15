@@ -66,11 +66,14 @@ ul {
   top: 0;
   bottom: 0;
   right: 0;
-  width: 73%;
-  margin-left: 2%;
+  width: 74%;
+  margin-left: 1%;
 }
 h2 {
   color: #bbb;
+}
+p{
+  font-size: 14px;
 }
 header {
   position: relative;
